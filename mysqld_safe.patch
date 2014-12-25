@@ -47,7 +47,7 @@
   cmd="`mysqld_ld_preload_text`$NOHUP_NICENESS"
 
   for i in  "$ledir/$MYSQLD" "$defaults" "--basedir=$MY_BASEDIR_VERSION" \
-!   "--datadir=$DATADIR" "--plugin-dir=$plugin_dir" "--server-id=$SERVER_ID" "$USER_OPTION"
+!   "--datadir=$DATADIR" "--plugin-dir=$plugin_dir" "--server-id=$SERVER_ID" "--report-host=$(uname -n)" "$USER_OPTION"
   do
     cmd="$cmd "`shell_quote_string "$i"`
   done
