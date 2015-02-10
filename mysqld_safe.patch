@@ -1,12 +1,12 @@
-*** /usr/bin/mysqld_safe.orig   Fri Nov 21 01:26:39 2014
---- /usr/bin/mysqld_safe        Thu Dec 18 01:35:36 2014
+*** /usr/mysql/5.6.23/bin/mysqld_safe.orig      2015-02-03 16:49:45.000000000 +0900
+--- /usr/mysql/5.6.23/bin/mysqld_safe   2015-02-10 11:27:55.964355062 +0900
 ***************
 *** 82,87 ****
 --- 82,88 ----
     --syslog                   Log messages to syslog with 'logger'
     --skip-syslog              Log messages to error log (default)
     --syslog-tag=TAG           Pass -t "mysqld-TAG" to 'logger'
-+   --server-id=auto           Make server_id variable from IP Address 3rd and 4th byte.
++   --auto-server-id           Make server_id variable from IP Address 3rd and 4th byte.
 
   All other options are passed to the mysqld program.
 
@@ -16,7 +16,7 @@
         --ledir=*) ledir="$val" ;;
         --malloc-lib=*) set_malloc_lib "$val" ;;
         --mysqld=*) MYSQLD="$val" ;;
-+       --server-id=*) SERVER_ID="$val" ;;
++       --auto-server-id) AUTO_SERVER_ID="1" ;;
         --mysqld-version=*)
           if test -n "$val"
           then
@@ -27,8 +27,8 @@
   fi
 
 + ### Added by yoku0825.
-+ if test "$SERVER_ID" = "auto" ; then
-+   SERVER_ID=$(getent hosts $(hostname) | awk '{print $1}' | awk -F. '{id=$3 * 256 + $4; print id}')
++ if test "$AUTO_SERVER_ID" = "1" ; then
++   SERVER_ID="--server-id=$(getent hosts $(uname -n) | awk '{print $1}' | awk -F. '{id=$3 * 256 + $4; print id}')"
 + fi
 +
   if test ! -x "$ledir/$MYSQLD"
@@ -47,7 +47,7 @@
   cmd="`mysqld_ld_preload_text`$NOHUP_NICENESS"
 
   for i in  "$ledir/$MYSQLD" "$defaults" "--basedir=$MY_BASEDIR_VERSION" \
-!   "--datadir=$DATADIR" "--plugin-dir=$plugin_dir" "--server-id=$SERVER_ID" "--report-host=$(uname -n)" "$USER_OPTION"
+!   "--datadir=$DATADIR" "--plugin-dir=$plugin_dir" "$SERVER_ID" "--report-host=$(uname -n)" "$USER_OPTION"
   do
     cmd="$cmd "`shell_quote_string "$i"`
   done
